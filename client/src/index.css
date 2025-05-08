@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes slideRight {
+  0% {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slideRight {
+  opacity: 0;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    --primary: 210 100% 20%; /* navy color */
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 240 5.9% 90%;
+    --secondary-foreground: 240 5.9% 10%;
+
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+
+    --accent: 43 100% 50%; /* gold color */
+    --accent-foreground: 240 5.9% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 10% 3.9%;
+
+    --radius: 0.5rem;
+
+    --navy-light: 212 59% 18%;
+    --navy: 210 100% 20%;
+    --navy-dark: 210 100% 12%;
+    --gold-light: 51 100% 50%;
+    --gold: 48 100% 50%;
+    --gold-dark: 46 67% 52%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-gray-50 text-gray-800;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-navy font-bold;
+  }
+}
+
+@layer components {
+  .bg-navy {
+    background-color: hsl(210, 100%, 20%);
+  }
+  .bg-navy-light {
+    background-color: hsl(212, 59%, 18%);
+  }
+  .bg-navy-dark {
+    background-color: hsl(210, 100%, 12%);
+  }
+  .text-navy {
+    color: hsl(210, 100%, 20%);
+  }
+  .text-navy-light {
+    color: hsl(212, 59%, 18%);
+  }
+  .bg-gold {
+    background-color: hsl(48, 100%, 50%);
+  }
+  .text-gold {
+    color: hsl(48, 100%, 50%);
+  }
+  .border-gold {
+    border-color: hsl(48, 100%, 50%);
+  }
+  .text-gold-light {
+    color: hsl(51, 100%, 50%);
+  }
+  .hover\:text-gold-light:hover {
+    color: hsl(51, 100%, 50%);
+  }
+  .hover\:bg-gold-dark:hover {
+    background-color: hsl(46, 67%, 52%);
+  }
+  .border-l-4.border-gold {
+    border-left-color: hsl(48, 100%, 50%);
+  }
+  .border-t-4.border-gold {
+    border-top-color: hsl(48, 100%, 50%);
+  }
+}
