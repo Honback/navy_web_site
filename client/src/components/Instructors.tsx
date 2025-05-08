@@ -13,6 +13,7 @@ import jungDrImage from '../assets/jung_dr.jpg';
 import hanViceImage from '../assets/han_vice.jpg';
 import hongProImage from '../assets/hong_pro.jpg';
 
+
 interface Instructor {
   name: string;
   title: string;
