@@ -12,8 +12,10 @@ jobs:
           node-version: '20'
       - run: npm install
       - run: npm run build
-      - run: ls -la dist # 빌드 디렉토리 확인
-      - run: ls -la dist/public || echo "client/dist not found"
+      - run: ls -la client/dist || echo "client/dist not found"
+      - run: mkdir -p dist/public
+      - run: cp -r client/dist/* dist/public/ || echo "Copy failed"
+      - run: ls -la dist/public
       - env:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
         run: npm start
