@@ -109,7 +109,7 @@ export async function sendAccessRequestEmail(data: {
   `;
 
   return await sendEmail({
-    to: process.env.EMAIL_USER || 'nov6winter@gmail.com', // 수신자 이메일
+    to: process.env.EMAIL_USER || 'ktj@parancompany.co.kr', // 수신자 이메일
     subject: `일정표 접근 요청: ${name}님`,
     html: htmlContent,
     text: textContent,

@@ -11,7 +11,7 @@ jobs:
         with:
           node-version: '20'
       - run: npm install
-      - run: npm run build
+      - run: npm run build # 빌드 명령 명시
       - env:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
         run: npm start
