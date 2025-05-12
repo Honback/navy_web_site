@@ -58,6 +58,9 @@ const Footer = () => {
                 <Mail size={14} className="mr-2 flex-shrink-0" />
                 <span style={textStyle}>kdh@parancompany.co.kr</span>
               </li>
+              <li className=" flex items-center justify-center sm:justify-start">
+                    <a href="http://pf.kakao.com/_xkexdLG/chat" target="_blank" rel="noopener noreferrer" className="text-primary text-yellow-400 no-underline hover:text-yellow-300 hover:underline">카톡 문의하기</a>
+              </li>
             </ul>
           </div>
         </div>

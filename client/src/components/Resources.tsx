@@ -215,12 +215,24 @@ const Resources = () => {
               필승해군캠프 일정표는 보안 문서로, Gmail을 통한 개인정보 확인 및
               관리자 승인 후 제공됩니다.
             </p>
-            <Button
+            {/* <Button
               className="mt-auto flex items-center justify-center bg-navy hover:bg-navy-dark text-sm md:text-base text-yellow-300 hover:text-yellow-400"
               onClick={handleCalendarAccess}
             >
-              일정표 접속 요청
+              전체 일정 보기
               <Lock className="ml-2 h-4 w-4 text-red-500" />
+            </Button> */}
+            <Button
+              className="mt-4 text-red-500 flex items-center justify-center bg-navy hover:bg-navy-dark text-sm md:text-base"
+              onClick={() =>
+                window.open(
+                  "https://calendar.google.com/calendar/embed?src=paranep1582%40gmail.com&ctz=Asia%2FSeoul",
+                  "_blank",
+                )
+              }
+            >
+              전체 일정 보기
+              <ExternalLink className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -229,7 +241,7 @@ const Resources = () => {
       <Dialog open={loginDialogOpen} onOpenChange={setLoginDialogOpen}>
         <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle style={textStyle}>일정표 접근 요청</DialogTitle>
+            <DialogTitle style={textStyle}>전체 일정 보기</DialogTitle>
             <DialogDescription style={textStyle}>
               보안 사항으로 인적사항 확인이 필요합니다. 아래 정보를 입력하시면
               관리자 검토 후 접근 권한을 드립니다.

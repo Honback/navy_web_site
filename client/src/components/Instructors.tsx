@@ -27,7 +27,7 @@ const instructors: Instructor[] = [
   { name: "왕선택", title: "박사", image: wangDrImage },
   { name: "최명환", title: "제독(예)", image: choiAdmImage },
   { name: "강동완", title: "교수", image: kangProImage },
-  { name: "강정희", title: "대령(예)", image: kangColImage },
+  // { name: "강정희", title: "대령(예)", image: kangColImage },
   { name: "김동수", title: "교수", image: kimProImage },
   { name: "정성장", title: "박사", image: jungDrImage },
   { name: "한용섭", title: "부총장", image: hanViceImage },
@@ -62,7 +62,7 @@ const Instructors = () => {
                 key={index}
                 className="flex-none w-40 flex flex-col items-center mx-2"
               >
-                <div className={`w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden mb-4 border-2 border-gray-300 ${instructor.name === "최명환" ? "md:w-48" : ""}`}>
+                <div className={`w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden mb-4 border-2 border-gray-300`}>
                   <img
                     src={instructor.image}
                     alt={instructor.name}
