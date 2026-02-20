@@ -1,0 +1,36 @@
+services:
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: navy-postgres
+    env_file: .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U navy_admin -d navy_communication"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  spring-backend:
+    build: ./backend
+    container_name: navy-backend
+    env_file: .env
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+
+  react-frontend:
+    build: ./frontend
+    container_name: navy-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - spring-backend
+
+volumes:
+  postgres-data:

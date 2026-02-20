@@ -1,0 +1,32 @@
+package com.navy.communication.dto;
+
+public record VenueCreateDto(
+    String name,
+    String address,
+    String building,
+    String roomNumber,
+    Integer capacity,
+    String region,
+    Integer lectureCapacity,
+    Integer accommodationCapacity,
+    String mealCost,
+    String overallRating,
+    String notes,
+    String website,
+    String reservationContact,
+    String summary,
+    String lectureRooms,
+    String usageFee,
+    String bannerSize,
+    String deskLayout,
+    String roomStatus,
+    String roomAmenities,
+    String personalItems,
+    String convenienceFacilities,
+    String restaurantContact,
+    String reservationRules,
+    String importantTips,
+    String subFacilities,
+    String evaluation,
+    String surveyImages
+) {}
