@@ -37,6 +37,8 @@ public class UserController {
         user.setAffiliation(dto.affiliation());
         user.setPhone(dto.phone());
         user.setRole(UserRole.valueOf(dto.role()));
+        user.setFleet(dto.fleet());
+        user.setShip(dto.ship());
         user.setStatus(UserStatus.ACTIVE);
         return userRepository.save(user);
     }
@@ -50,6 +52,8 @@ public class UserController {
         user.setAffiliation(dto.affiliation());
         user.setPhone(dto.phone());
         user.setRole(UserRole.valueOf(dto.role()));
+        user.setFleet(dto.fleet());
+        user.setShip(dto.ship());
         return userRepository.save(user);
     }
 

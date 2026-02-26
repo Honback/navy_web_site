@@ -1,21 +1,26 @@
 import { useState, useEffect } from 'react'
 import { api } from '../services/api'
-import type { Venue } from '../types'
+import type { User, Venue } from '../types'
+
+const FLEETS = ['1함대', '2함대', '3함대', '작전사', '진기사', '교육사']
 
 interface RequestFormProps {
   userId: number
+  user?: User
   onSubmitSuccess: () => void
 }
 
-export default function RequestForm({ userId, onSubmitSuccess }: RequestFormProps) {
+export default function RequestForm({ userId, user, onSubmitSuccess }: RequestFormProps) {
   const [venues, setVenues] = useState<Venue[]>([])
   const [trainingType, setTrainingType] = useState('1일집중형')
-  const [fleet, setFleet] = useState('')
+  const [fleet, setFleet] = useState(user?.fleet || '')
+  const [ship, setShip] = useState(user?.ship || '')
   const [requestDate, setRequestDate] = useState('')
   const [requestEndDate, setRequestEndDate] = useState('')
   const [startTime, setStartTime] = useState('')
   const [venueId, setVenueId] = useState('')
   const [secondVenueId, setSecondVenueId] = useState('')
+  const [participantCount, setParticipantCount] = useState('')
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -85,17 +90,21 @@ export default function RequestForm({ userId, onSubmitSuccess }: RequestFormProp
         secondVenueId: secondVenueId ? Number(secondVenueId) : undefined,
         trainingType,
         fleet,
+        ship: ship || undefined,
         requestDate,
         requestEndDate: is2Day ? requestEndDate : undefined,
         startTime: startTime || undefined,
+        participantCount: participantCount ? Number(participantCount) : undefined,
         notes: notes || undefined,
       })
       setSuccess('교육 요청이 성공적으로 등록되었습니다.')
       setTrainingType('1일집중형')
-      setFleet('')
+      setFleet(user?.fleet || '')
+      setShip(user?.ship || '')
       setRequestDate('')
       setRequestEndDate('')
       setStartTime('')
+      setParticipantCount('')
       setVenueId('')
       setSecondVenueId('')
       setNotes('')
@@ -128,15 +137,31 @@ export default function RequestForm({ userId, onSubmitSuccess }: RequestFormProp
         </div>
         <div className="form-group">
           <label htmlFor="fleet">소속 함대 *</label>
-          <select id="fleet" value={fleet} onChange={(e) => setFleet(e.target.value)}>
+          <select id="fleet" value={fleet} onChange={(e) => { setFleet(e.target.value); setShip('') }}>
             <option value="">-- 소속 함대를 선택하세요 --</option>
-            <option value="1함대">1함대</option>
-            <option value="2함대">2함대</option>
-            <option value="3함대">3함대</option>
-            <option value="작전사">작전사</option>
-            <option value="진기사">진기사</option>
-            <option value="교육사">교육사</option>
+            {FLEETS.map(f => (
+              <option key={f} value={f}>{f}</option>
+            ))}
           </select>
+        </div>
+        {fleet && (
+          <div className="form-group">
+            <label htmlFor="ship">소속 함정</label>
+            <input id="ship" value={ship} onChange={(e) => setShip(e.target.value)} placeholder="함정명 (본부는 비워두세요)" />
+          </div>
+        )}
+        <div className="form-group">
+          <label htmlFor="participantCount">참여 인원</label>
+          <input
+            type="number"
+            id="participantCount"
+            value={participantCount}
+            onChange={(e) => setParticipantCount(e.target.value)}
+            placeholder="예: 80"
+            min="1"
+            max="9999"
+          />
+          <span className="form-hint">행사 시작 2주 전까지 참여 인원 확정이 필요합니다.</span>
         </div>
       </div>
 

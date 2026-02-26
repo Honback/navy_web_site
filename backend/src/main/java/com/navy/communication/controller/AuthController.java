@@ -44,6 +44,8 @@ public class AuthController {
         user.setName(request.name());
         user.setAffiliation(request.affiliation());
         user.setPhone(request.phone());
+        user.setFleet(request.fleet());
+        user.setShip(request.ship());
         user.setStatus(UserStatus.PENDING);
         return userRepository.save(user);
     }

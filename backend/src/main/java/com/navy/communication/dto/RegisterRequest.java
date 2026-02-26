@@ -4,5 +4,7 @@ public record RegisterRequest(
     String email,
     String name,
     String affiliation,
-    String phone
+    String phone,
+    String fleet,
+    String ship
 ) {}

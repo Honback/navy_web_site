@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { api } from '../services/api'
 import type { Instructor, InstructorCreate, InstructorSchedule } from '../types'
+import { PHOTO_MAP } from './InstructorInfo'
 
 const EMPTY_FORM: InstructorCreate = {
   name: '', rank: '', specialty: '', phone: '', email: '',
@@ -25,7 +26,6 @@ const CATEGORY_KEYS: Record<string, string> = {
 
 export default function InstructorManagement() {
   const [instructors, setInstructors] = useState<Instructor[]>([])
-  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [showForm, setShowForm] = useState(false)
@@ -52,12 +52,43 @@ export default function InstructorManagement() {
   const [scheduleEndDate, setScheduleEndDate] = useState('')
   const [scheduleDesc, setScheduleDesc] = useState('')
 
+  // Photo upload
+  const photoInputRef = useRef<HTMLInputElement>(null)
+  const [photoUploading, setPhotoUploading] = useState(false)
+
+  const handlePhotoUpload = async (file: File) => {
+    if (!selectedDetail) return
+    setPhotoUploading(true)
+    setError('')
+    try {
+      const updated = await api.uploadInstructorPhoto(selectedDetail.id, file)
+      setSelectedDetail(updated)
+      fetchInstructors()
+      setSuccess('사진이 업로드되었습니다.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '사진 업로드에 실패했습니다.')
+    } finally {
+      setPhotoUploading(false)
+    }
+  }
+
+  const handlePhotoDelete = async () => {
+    if (!selectedDetail || !confirm('사진을 삭제하시겠습니까?')) return
+    setError('')
+    try {
+      const updated = await api.deleteInstructorPhoto(selectedDetail.id)
+      setSelectedDetail(updated)
+      fetchInstructors()
+      setSuccess('사진이 삭제되었습니다.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '사진 삭제에 실패했습니다.')
+    }
+  }
+
   const fetchInstructors = () => {
-    setLoading(true)
     api.getInstructors()
       .then(setInstructors)
       .catch(() => setError('강사 목록을 불러오는데 실패했습니다.'))
-      .finally(() => setLoading(false))
   }
 
   useEffect(() => { fetchInstructors() }, [])
@@ -274,19 +305,31 @@ export default function InstructorManagement() {
     return 'rec-neutral'
   }
 
-  if (loading) return <div className="loading">불러오는 중...</div>
-
   return (
     <div className="management-page">
       <div className="management-header">
         <h2>강사 관리</h2>
         <div className="header-info">
-          <select className="filter-select" value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
-            <option value="">전체 ({instructors.length}명)</option>
-            <option value="해군정체성">해군정체성 ({instructors.filter(i => i.category === '해군정체성').length}명)</option>
-            <option value="안보">안보 ({instructors.filter(i => i.category === '안보').length}명)</option>
-            <option value="소통">소통 ({instructors.filter(i => i.category === '소통').length}명)</option>
-          </select>
+          <div className="category-tags">
+            <button
+              className={`cat-tag${filterCategory === '' ? ' active' : ''}`}
+              onClick={() => setFilterCategory('')}
+            >
+              전체 <span className="cat-tag-count">{instructors.length}</span>
+            </button>
+            {Object.entries(CATEGORY_LABELS).map(([key, label]) => {
+              const count = instructors.filter(i => i.category === key).length
+              return (
+                <button
+                  key={key}
+                  className={`cat-tag cat-tag-${CATEGORY_KEYS[key]}${filterCategory === key ? ' active' : ''}`}
+                  onClick={() => setFilterCategory(filterCategory === key ? '' : key)}
+                >
+                  {label} <span className="cat-tag-count">{count}</span>
+                </button>
+              )
+            })}
+          </div>
           <button className="add-btn" onClick={() => { setShowForm(true); setShowCalendar(false); setEditingId(null); setForm(EMPTY_FORM); }}>
             + 새 강사
           </button>
@@ -435,6 +478,44 @@ export default function InstructorManagement() {
               <button className="action-btn edit" onClick={() => openCalendar(selectedDetail)}>일정</button>
               <button className="action-btn edit" onClick={() => handleEdit(selectedDetail)}>수정</button>
               <button className="cancel-btn" onClick={() => setSelectedDetail(null)}>닫기</button>
+            </div>
+          </div>
+
+          {/* Photo Section */}
+          <div className="inst-photo-section">
+            <div className="inst-photo-preview">
+              {selectedDetail.photoUrl ? (
+                <img src={`/api/instructors/${selectedDetail.id}/photo`} alt={selectedDetail.name} />
+              ) : PHOTO_MAP[selectedDetail.name] ? (
+                <img src={PHOTO_MAP[selectedDetail.name]} alt={selectedDetail.name} />
+              ) : (
+                <div className="inst-photo-empty">
+                  <span>{selectedDetail.name.charAt(selectedDetail.name.length - 2)}{selectedDetail.name.charAt(selectedDetail.name.length - 1)}</span>
+                </div>
+              )}
+            </div>
+            <div className="inst-photo-actions">
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={e => {
+                  const file = e.target.files?.[0]
+                  if (file) handlePhotoUpload(file)
+                  e.target.value = ''
+                }}
+              />
+              <button
+                className="action-btn edit"
+                disabled={photoUploading}
+                onClick={() => photoInputRef.current?.click()}
+              >
+                {photoUploading ? '업로드 중...' : '사진 업로드'}
+              </button>
+              {selectedDetail.photoUrl && (
+                <button className="action-btn reject" onClick={handlePhotoDelete}>사진 삭제</button>
+              )}
             </div>
           </div>
 

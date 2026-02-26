@@ -27,6 +27,12 @@ public class User {
     @Column(nullable = false, length = 20)
     private UserRole role = UserRole.USER;
 
+    @Column(length = 20)
+    private String fleet;
+
+    @Column(length = 50)
+    private String ship;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private UserStatus status = UserStatus.ACTIVE;
@@ -56,6 +62,12 @@ public class User {
 
     public UserStatus getStatus() { return status; }
     public void setStatus(UserStatus status) { this.status = status; }
+
+    public String getFleet() { return fleet; }
+    public void setFleet(String fleet) { this.fleet = fleet; }
+
+    public String getShip() { return ship; }
+    public void setShip(String ship) { this.ship = ship; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

@@ -6,6 +6,8 @@ export interface User {
   name: string
   affiliation: string | null
   phone: string | null
+  fleet: string | null
+  ship: string | null
   role: 'USER' | 'ADMIN'
   status: UserStatus
 }
@@ -13,16 +15,18 @@ export interface User {
 export interface UserCreate {
   email: string
   name: string
-  affiliation: string
   phone: string
   role: string
+  fleet?: string
+  ship?: string
 }
 
 export interface RegisterRequest {
   email: string
   name: string
-  affiliation: string
   phone: string
+  fleet?: string
+  ship?: string
 }
 
 export interface Instructor {
@@ -48,6 +52,7 @@ export interface Instructor {
   timeManagementScore: number | null
   strengths: string | null
   weaknesses: string | null
+  photoUrl: string | null
 }
 
 export interface InstructorCreate {
@@ -137,7 +142,7 @@ export interface VenueCreate {
   surveyImages?: string
 }
 
-export type RequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED'
+export type RequestStatus = 'PENDING' | 'VENUE_CHECK' | 'INSTRUCTOR_CHECK' | 'CONFIRMED' | 'REJECTED' | 'CANCELLED'
 
 export interface TrainingRequest {
   id: number
@@ -161,12 +166,17 @@ export interface TrainingRequest {
   secondVenueRoomNumber: string | null
   trainingType: string
   fleet: string
+  ship: string | null
+  userFleet: string | null
+  userShip: string | null
   requestDate: string
   requestEndDate: string | null
   startTime: string | null
+  participantCount: number | null
   status: RequestStatus
   notes: string | null
   plan: string | null
+  rejectionReason: string | null
   createdAt: string
 }
 
@@ -182,9 +192,11 @@ export interface TrainingRequestCreate {
   secondVenueId?: number
   trainingType: string
   fleet: string
+  ship?: string
   requestDate: string
   requestEndDate?: string
   startTime?: string
+  participantCount?: number
   notes?: string
 }
 
@@ -211,4 +223,90 @@ export interface InstructorScheduleCreate {
   scheduleDate: string
   endDate?: string
   description: string
+}
+
+export interface VenueContact {
+  id: number
+  venueId: number
+  name: string
+  role: string | null
+  phone: string | null
+  email: string | null
+  preferredContact: string | null
+  notes: string | null
+  createdAt: string
+}
+
+export interface VenueContactCreate {
+  venueId: number
+  name: string
+  role?: string
+  phone?: string
+  email?: string
+  preferredContact?: string
+  notes?: string
+}
+
+export interface VenueRoom {
+  id: number
+  venueId: number
+  name: string
+  capacity: number | null
+  hasProjector: boolean | null
+  hasMicrophone: boolean | null
+  hasWhiteboard: boolean | null
+  bannerSize: string | null
+  podiumSize: string | null
+  deskLayout: string | null
+  notes: string | null
+  createdAt: string
+}
+
+export interface VenueRoomCreate {
+  venueId: number
+  name: string
+  capacity?: number
+  hasProjector?: boolean
+  hasMicrophone?: boolean
+  hasWhiteboard?: boolean
+  bannerSize?: string
+  podiumSize?: string
+  deskLayout?: string
+  notes?: string
+}
+
+export interface NoticeItem {
+  id: number
+  title: string
+  content: string
+  author: string
+  important: boolean
+  createdAt: string
+}
+
+export interface NoticeCreate {
+  title: string
+  content: string
+  author: string
+  important: boolean
+}
+
+export interface BoardPost {
+  id: number
+  title: string
+  content: string
+  summary: string | null
+  author: string
+  tags: string | null
+  images: string | null
+  createdAt: string
+}
+
+export interface BoardPostCreate {
+  title: string
+  content: string
+  summary?: string
+  author: string
+  tags?: string
+  images?: string
 }

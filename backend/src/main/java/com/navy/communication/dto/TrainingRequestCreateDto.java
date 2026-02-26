@@ -11,8 +11,10 @@ public record TrainingRequestCreateDto(
     Long secondVenueId,
     String trainingType,
     String fleet,
+    String ship,
     LocalDate requestDate,
     LocalDate requestEndDate,
     String startTime,
+    Integer participantCount,
     String notes
 ) {}

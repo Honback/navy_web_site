@@ -8,32 +8,32 @@ import navyOnboard from '../assets/navy/navy_onboard.jpg'
 import navyTeam from '../assets/navy/navy_team.jpg'
 
 // Instructor photos
-import jungdaejinImg from '../assets/instructors/jungdaejin.jpg'
-import joosungImg from '../assets/instructors/joosung.png'
-import hanseoImg from '../assets/instructors/hanseo.jpg'
-import kwonImg from '../assets/instructors/kwon.png'
-import wangDrImg from '../assets/instructors/wang_dr.png'
-import choiAdmImg from '../assets/instructors/choi_adm.png'
-import kangProImg from '../assets/instructors/kang_pro.jpg'
-import kimProImg from '../assets/instructors/kim_pro.jpeg'
-import jungDrImg from '../assets/instructors/jung_dr.jpg'
-import hanViceImg from '../assets/instructors/han_vice.jpg'
-import hongProImg from '../assets/instructors/hong_pro.jpg'
+import jungDaejinImg from '../assets/instructors/jung_daejin.jpg'
+import jooSunghaImg from '../assets/instructors/joo_sungha.png'
+import hanSeoheeImg from '../assets/instructors/han_seohee.jpg'
+import kwonKihyungImg from '../assets/instructors/kwon_kihyung.png'
+import wangSuntaekImg from '../assets/instructors/wang_suntaek.png'
+import choiMyunghanImg from '../assets/instructors/choi_myunghan.png'
+import kangDongwanImg from '../assets/instructors/kang_dongwan.jpg'
+import kimDongsuImg from '../assets/instructors/kim_dongsu.jpeg'
+import jungSungjangImg from '../assets/instructors/jung_sungjang.jpg'
+import hanYongsubImg from '../assets/instructors/han_yongsub.jpg'
+import hongSeokhunImg from '../assets/instructors/hong_seokhun.jpg'
 
 import { useState, useEffect } from 'react'
 
 const instructors = [
-  { name: '정대진', title: '교수', image: jungdaejinImg },
-  { name: '주성하', title: '북한전문기자', image: joosungImg },
-  { name: '한서희', title: '북한정보 자문위원', image: hanseoImg },
-  { name: '권기형', title: '참전 용사', image: kwonImg },
-  { name: '왕선택', title: '박사', image: wangDrImg },
-  { name: '최명환', title: '제독(예)', image: choiAdmImg },
-  { name: '강동완', title: '교수', image: kangProImg },
-  { name: '김동수', title: '교수', image: kimProImg },
-  { name: '정성장', title: '박사', image: jungDrImg },
-  { name: '한용섭', title: '부총장', image: hanViceImg },
-  { name: '홍석훈', title: '교수', image: hongProImg },
+  { name: '정대진', title: '교수', image: jungDaejinImg },
+  { name: '주성하', title: '북한전문기자', image: jooSunghaImg },
+  { name: '한서희', title: '북한정보 자문위원', image: hanSeoheeImg },
+  { name: '권기형', title: '참전 용사', image: kwonKihyungImg },
+  { name: '왕선택', title: '박사', image: wangSuntaekImg },
+  { name: '최명환', title: '제독(예)', image: choiMyunghanImg },
+  { name: '강동완', title: '교수', image: kangDongwanImg },
+  { name: '김동수', title: '교수', image: kimDongsuImg },
+  { name: '정성장', title: '박사', image: jungSungjangImg },
+  { name: '한용섭', title: '부총장', image: hanYongsubImg },
+  { name: '홍석훈', title: '교수', image: hongSeokhunImg },
 ]
 
 const heroImages = [navyImage1, navyImage2, navyImage3, navyImage4]
@@ -63,7 +63,7 @@ export default function TrainingInfo() {
         />
         <div className="hero-overlay" />
         <div className="hero-content">
-          <h2>2025 필승해군캠프</h2>
+          <h2>2026 필승해군캠프</h2>
           <p>싸우면 승리하는 정예 해군 장병 육성을 위한 특별 교육 프로그램</p>
           <div className="hero-badges">
             <span className="hero-badge">해군 해상 근무 장병 대상</span>

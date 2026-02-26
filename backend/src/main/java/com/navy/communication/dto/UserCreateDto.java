@@ -5,5 +5,7 @@ public record UserCreateDto(
     String name,
     String affiliation,
     String phone,
-    String role
+    String role,
+    String fleet,
+    String ship
 ) {}

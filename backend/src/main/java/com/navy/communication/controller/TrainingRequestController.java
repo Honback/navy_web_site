@@ -31,9 +31,14 @@ public class TrainingRequestController {
     }
 
     @GetMapping
-    public List<TrainingRequestResponseDto> getAll(@RequestParam(required = false) Long userId) {
+    public List<TrainingRequestResponseDto> getAll(
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) String fleet) {
         if (userId != null) {
             return trainingRequestService.getRequestsByUser(userId);
+        }
+        if (fleet != null) {
+            return trainingRequestService.getRequestsByFleet(fleet);
         }
         return trainingRequestService.getAllRequests();
     }
@@ -47,7 +52,7 @@ public class TrainingRequestController {
     public TrainingRequestResponseDto updateStatus(@PathVariable Long id,
                                                    @RequestBody StatusUpdateDto dto) {
         RequestStatus status = RequestStatus.valueOf(dto.status());
-        return trainingRequestService.updateStatus(id, status);
+        return trainingRequestService.updateStatus(id, status, dto.reason());
     }
 
     @PatchMapping("/{id}/instructors")

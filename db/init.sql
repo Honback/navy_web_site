@@ -8,6 +8,8 @@ CREATE TABLE users (
     name VARCHAR(100) NOT NULL,
     affiliation VARCHAR(200),
     phone VARCHAR(30),
+    fleet VARCHAR(20),
+    ship VARCHAR(50),
     role VARCHAR(20) NOT NULL DEFAULT 'USER' CHECK (role IN ('USER', 'ADMIN')),
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('PENDING', 'ACTIVE', 'REJECTED')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -38,6 +40,7 @@ CREATE TABLE instructors (
     time_management_score DECIMAL(3,2) DEFAULT 0,
     strengths TEXT,
     weaknesses TEXT,
+    photo_url VARCHAR(500),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -87,12 +90,15 @@ CREATE TABLE training_requests (
     second_venue_id BIGINT REFERENCES venues(id),
     training_type VARCHAR(20) NOT NULL DEFAULT '1일집중형' CHECK (training_type IN ('1일집중형', '1박2일합숙형')),
     fleet VARCHAR(20) NOT NULL CHECK (fleet IN ('1함대', '2함대', '3함대', '작전사', '진기사', '교육사')),
+    ship VARCHAR(50),
     request_date DATE NOT NULL,
     request_end_date DATE,
     start_time VARCHAR(5),
-    status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED')),
+    participant_count INTEGER,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'VENUE_CHECK', 'INSTRUCTOR_CHECK', 'CONFIRMED', 'REJECTED', 'CANCELLED')),
     notes TEXT,
     plan TEXT,
+    rejection_reason TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -106,6 +112,61 @@ CREATE TABLE instructor_schedules (
     description VARCHAR(200),
     source VARCHAR(20) NOT NULL DEFAULT 'MANUAL' CHECK (source IN ('MANUAL', 'REQUEST')),
     request_id BIGINT REFERENCES training_requests(id) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Venue contacts table
+CREATE TABLE venue_contacts (
+    id BIGSERIAL PRIMARY KEY,
+    venue_id BIGINT NOT NULL REFERENCES venues(id) ON DELETE CASCADE,
+    name VARCHAR(50) NOT NULL,
+    role VARCHAR(50),
+    phone VARCHAR(50),
+    email VARCHAR(100),
+    preferred_contact VARCHAR(100),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_venue_contacts_venue ON venue_contacts(venue_id);
+
+-- Venue rooms table (lecture halls / conference rooms under each venue)
+CREATE TABLE venue_rooms (
+    id BIGSERIAL PRIMARY KEY,
+    venue_id BIGINT NOT NULL REFERENCES venues(id) ON DELETE CASCADE,
+    name VARCHAR(100) NOT NULL,
+    capacity INTEGER DEFAULT 0,
+    has_projector BOOLEAN DEFAULT false,
+    has_microphone BOOLEAN DEFAULT false,
+    has_whiteboard BOOLEAN DEFAULT false,
+    banner_size VARCHAR(300),
+    podium_size VARCHAR(300),
+    desk_layout VARCHAR(300),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_venue_rooms_venue ON venue_rooms(venue_id);
+
+-- Notices table
+CREATE TABLE notices (
+    id BIGSERIAL PRIMARY KEY,
+    title VARCHAR(500) NOT NULL,
+    content TEXT NOT NULL,
+    author VARCHAR(100) NOT NULL,
+    important BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Board posts table
+CREATE TABLE board_posts (
+    id BIGSERIAL PRIMARY KEY,
+    title VARCHAR(500) NOT NULL,
+    content TEXT NOT NULL,
+    summary VARCHAR(1000),
+    author VARCHAR(100) NOT NULL,
+    tags VARCHAR(500),
+    images TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -725,3 +786,204 @@ VALUES (
     '장점: 자연 속 교육과 힐링 동시 가능, 소규모~중간 규모 교육에 최적화, 저렴한 대관료 | 유의: 흡연 및 음주 절대 금지, 객실 내 취식 불가',
     'https://works.do/xNW2GrX'
 );
+
+-- ═══════════════════════════════════════════════
+-- Venue Contacts (장소 담당자)
+-- ═══════════════════════════════════════════════
+
+-- 1. 이순신리더십국제센터
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (1, '최정화', '팀장', '010-8270-2012', NULL, '전화', '주말(일요일) 세팅이나 식사 운영은 반드시 사전 조율 필요');
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (1, '대표전화', '대관문의', '070-4239-0771', NULL, '전화', NULL);
+
+-- 2. 청호인재개발원
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (2, '대표전화', '대관문의', '031-354-1270', NULL, '전화', NULL);
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (2, '대관문의', '대관', '02-522-0496', NULL, '전화', NULL);
+
+-- 3. DB생명 인재개발원
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (3, '대표전화', '대관문의', '02-3011-4500', NULL, '전화', NULL);
+
+-- 4. YBM연수원
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (4, '대표전화', '대관문의', '031-374-0509', NULL, '전화', NULL);
+
+-- 5. 목포국제축구센터
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (5, '박성민', '주임', '010-3125-7623', 'milk4431@naver.com', '전화', NULL);
+
+-- 6. 부산도시공사 아르피나
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (6, '박진우', '매니저', '051-740-3253', NULL, '전화', '단체 숙박 예약은 반드시 매니저를 통해야 함');
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (6, '프론트', '프론트데스크', '051-740-3201', NULL, '전화', NULL);
+
+-- 7. 호텔현대 바이 라한 목포
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (7, '허윤종', '지배인', '010-2469-9953', NULL, '전화', NULL);
+
+-- 8. 한국여성수련원
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (8, '대관담당', '대관', '033-530-4356', NULL, '전화', NULL);
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (8, '식당담당', '식당', '010-2580-1063', NULL, '전화', '최소 3일 전까지 확정 인원 통보 필요');
+
+-- 9. 통영 동원리조트
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (9, '대표전화', '대관문의', '055-640-5000', NULL, '전화', NULL);
+
+-- 10. 태백 중진공 연수원
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (10, '백승재', '사원', '033-550-5013', 'sj.baek@kosmes.or.kr', '전화', NULL);
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (10, '김상희', '식당', '010-5363-2115', NULL, '전화', '식당 관련 문의');
+
+-- 11. 중진공 충청연수원
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (11, '시설대여담당', '시설대여', '041-559-9226', NULL, '전화', NULL);
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (11, '대표전화', '대관문의', '041-559-9225', NULL, '전화', NULL);
+
+-- 12. 중진공 부산경남연수원
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (12, '성태경', '대리 (시설대관)', '055-548-8023', NULL, '전화', NULL);
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (12, '한선순', '영양사 (식당)', '055-548-8097', NULL, '전화', '식사 인원 및 메뉴 확정을 사전에 정교하게 조율해야');
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (12, '한선순 (휴대폰)', '영양사 (식당)', '010-3253-2086', NULL, '전화', NULL);
+
+-- 13. 동해 무릉건강숲
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (13, '김나현', '팀장', '033-539-8280', NULL, '전화', NULL);
+INSERT INTO venue_contacts (venue_id, name, role, phone, email, preferred_contact, notes)
+VALUES (13, '대표전화', '대관문의', '033-530-2391', NULL, '전화', NULL);
+
+-- Seed data: Notices
+INSERT INTO notices (title, content, author, important) VALUES
+('2025년 2분기 필승해군캠프 교육 일정 안내',
+E'2025년 2분기 필승해군캠프 교육 일정을 안내드립니다.\n\n■ 교육 기간\n• 1차: 2025년 6월 9일(월) ~ 6월 13일(금)\n• 2차: 2025년 6월 23일(월) ~ 6월 27일(금)\n\n■ 교육 장소\n• 진해 해군교육사령부 교육관\n• 숙소: 진해 국방컨벤션센터\n\n■ 교육 신청\n• 신청 기간: 2025년 5월 1일 ~ 5월 23일\n• 신청 방법: 본 시스템 ''교육 신청'' 메뉴를 통해 신청\n• 각 함대별 배정 인원을 확인 후 신청 바랍니다\n\n■ 유의사항\n• 교육 신청 후 취소 시 최소 2주 전까지 취소 요청 바랍니다\n• 교육 일정은 부대 상황에 따라 변경될 수 있습니다\n• 문의: 교육운영팀 (내선 4520)',
+'교육운영팀', true);
+
+INSERT INTO notices (title, content, author, important) VALUES
+('교육 요청 시스템 사용 안내',
+E'필승해군캠프 교육 요청 시스템 사용법을 안내드립니다.\n\n■ 회원가입 및 로그인\n• 상단 ''시스템 접속'' 버튼을 클릭하여 로그인 또는 회원가입\n• 회원가입 후 관리자 승인이 필요합니다\n\n■ 교육 요청 방법\n1. 로그인 후 ''교육 신청'' → ''교육 요청서 작성'' 메뉴 선택\n2. 교육 유형, 함대, 희망 일자, 교육장 선택\n3. 참가 인원 및 요청사항 입력 후 제출\n\n■ 요청 상태 확인\n• ''내 요청 목록'' 또는 ''My Page''에서 요청 상태 확인 가능\n• 상태: 대기중 → 승인/반려\n\n■ 문의\n• 시스템 관련 문의: 시스템관리팀\n• 교육 관련 문의: 교육운영팀',
+'시스템관리자', false);
+
+INSERT INTO notices (title, content, author, important) VALUES
+('1분기 교육 우수 참가부대 선정 결과',
+E'2025년 1분기 필승해군캠프 우수 참가부대 선정 결과를 안내드립니다.\n\n■ 우수 참가부대\n• 최우수: 제1함대 102전대\n• 우수: 제3함대 301전대\n• 장려: 제2함대 205전대\n\n■ 선정 기준\n• 교육 참여율 (30%)\n• 교육 평가 점수 (40%)\n• 교육 태도 및 참여도 (30%)\n\n우수 부대에는 부대장 표창이 수여될 예정입니다.\n다음 분기에도 많은 관심과 참여 바랍니다.',
+'교육운영팀', false);
+
+-- Seed data: Board Posts
+INSERT INTO board_posts (title, content, summary, author, tags, images) VALUES
+('2025년 1분기 필승해군캠프 교육 완료 보고',
+E'2025년 1분기 필승해군캠프가 3월 24일부터 28일까지 진해 교육장에서 성공적으로 진행되었습니다.\n\n이번 교육에는 1함대, 2함대, 3함대에서 총 480여명의 장병이 참여하였으며, 해군정체성·안보·소통 3개 분야에 걸쳐 총 12개 강의가 진행되었습니다.\n\n■ 주요 교육 내용\n• 해군정체성: 해군의 역사와 전통, 해군인으로서의 자부심 함양\n• 안보(군인정신): 최신 안보 동향 및 군인 정신 교육\n• 소통: 조직 내 소통 역량 강화, 리더십 교육\n\n■ 교육 성과\n• 참가자 만족도: 4.52 / 5.00\n• 교육 이수율: 98.3%\n• 우수 강사: 강동완 교수 (해군정체성), 김동수 교수 (안보)\n\n■ 향후 계획\n2분기 교육은 6월 중 진행 예정이며, 참가자 피드백을 반영하여 소통 분야 실습 시간을 확대할 예정입니다.',
+'2025년 1분기 필승해군캠프가 성공적으로 완료되었습니다. 총 3개 함대, 480여명의 장병이 참여하였으며 해군정체성, 안보, 소통 3개 분야의 교육이 진행되었습니다.',
+'교육운영팀',
+'필승해군캠프,1분기,교육완료',
+'[{"url":"/board/navy_lecture.jpg","caption":"필승해군캠프 교육 현장"},{"url":"/board/navy_team.jpg","caption":"교육 참가 장병 단체 사진"},{"url":"/board/navy_onboard.jpg","caption":"함정 체험 교육"}]');
+
+-- Seed data: Sample Training Request
+INSERT INTO training_requests (user_id, venue_id, training_type, fleet, request_date, request_end_date, start_time, participant_count, status, notes, created_at) VALUES
+(2, 1, '1박2일합숙형', '1함대', '2025-06-09', '2025-06-10', '09:00', 120, 'PENDING',
+'제1함대 102전대 장병 대상 필승해군캠프 교육 요청합니다.
+해군정체성 및 소통 분야 위주 교육을 희망합니다.
+숙소 및 식사 지원 필요합니다.',
+CURRENT_TIMESTAMP);
+
+-- ═══════════════════════════════════════════════
+-- Venue Rooms (교육장 강의실)
+-- ═══════════════════════════════════════════════
+
+-- 1. 이순신리더십국제센터
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, banner_size, podium_size, desk_layout, notes)
+VALUES (1, '한산관', 200, true, true, true, '8m x 60cm', '50cm x 30cm (폼보드)', NULL, '대강당, 책걸상 자가 세팅 필요, 전체면적 6,692㎡');
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, banner_size, podium_size, desk_layout, notes)
+VALUES (1, '노량관', 60, true, true, false, NULL, NULL, NULL, '2층');
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, banner_size, podium_size, desk_layout, notes)
+VALUES (1, '옥포관', 50, true, true, false, NULL, NULL, NULL, '2층');
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, banner_size, podium_size, desk_layout, notes)
+VALUES (1, '명량관', 40, true, true, false, NULL, NULL, NULL, '2층');
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, banner_size, podium_size, desk_layout, notes)
+VALUES (1, '당항포관', 30, true, true, false, NULL, NULL, NULL, '1층');
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, banner_size, podium_size, desk_layout, notes)
+VALUES (1, '안골포관', 20, true, true, false, NULL, NULL, NULL, '1층');
+
+-- 2. 청호인재개발원
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (2, '윌리엄홀', 250, true, true, false, '숙박 시 120만원 / 비숙박 시 200만원');
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (2, '팀홀', 168, true, true, false, '숙박 시 100만원 / 비숙박 시 150만원');
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (2, '대회의실', 80, true, true, false, '숙박 시 60만원 / 비숙박 시 80만원, 얼음 정수기 구비, 스피커 깨짐 현상 있음');
+
+-- 3. DB생명 인재개발원
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (3, '대강당', 164, true, true, false, '인당 12,500원 (최소 인원 90명 / 최소 총액 1,125,000원)');
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (3, '대강의실', 80, true, true, false, '인당 12,500원 (최소 인원 50명 / 최소 총액 625,000원)');
+
+-- 4. YBM연수원
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (4, '강의실(대)', 160, true, true, false, '80~160명 수용, 기본 사용료 1,000,000원 또는 인당 10,000원');
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (4, '중강의실', 80, true, true, false, '40~80명, 인당 10,000원');
+
+-- 5. 목포국제축구센터
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes, desk_layout)
+VALUES (5, '대강당', 200, true, true, false, '기본 사용료 100,000원', '고정형 책상');
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (5, '대회의실(1층)', 70, true, true, false, '기본 사용료 80,000원, 책상과 의자가 지저분하고 통일되어있지 않음');
+
+-- 6. 부산도시공사 아르피나
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (6, '그랜드 볼룸', 200, true, true, false, '결혼식 및 150명 이상 대규모 행사 적합');
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, banner_size, podium_size, notes)
+VALUES (6, '자스민', 50, true, true, false, '5000 x 700 mm', '60 x 90 cm', '기본 사용료 66만원(10시-17시) / 1,309,000원(1박2일)');
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (6, '클로버', 50, true, true, false, '자스민과 동일 규모');
+
+-- 7. 호텔현대 바이 라한 목포
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, desk_layout, notes)
+VALUES (7, '에메랄드+루비', 70, true, true, false, '스쿨 타입', '기본 사용료 80만원(숙박 시) / 120만원(비숙박)');
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (7, '대연회장(컨벤션 C홀)', 1000, true, true, false, '기본 사용료 120만원');
+
+-- 8. 한국여성수련원
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, banner_size, desk_layout, notes)
+VALUES (8, '다목적실', 100, true, true, false, '6m x 70cm', '책상/의자 배치 변경 가능 (자체 변경, 셋팅 시간 30분 제공)', '타원형, 331㎡, 기본 사용료 20만원');
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, banner_size, desk_layout, notes)
+VALUES (8, '대강당', 328, true, true, false, '9m x 1m', '고정형', '복층 구성(2층 235명, 3층 93명), 459㎡, 기본 사용료 50만원');
+
+-- 9. 통영 동원리조트
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (9, '이순신홀', 100, true, true, false, '기본 사용료 300,000원 (추가 시 150,000원)');
+
+-- 10. 태백 중진공 연수원
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, banner_size, podium_size, notes)
+VALUES (10, '소강당', 78, true, true, false, '6000 x 600mm (클립,자석부착)', '900 x 300mm (폼보드)', '220,000원(3시간) / 추가 1시간당 44,000원');
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (10, '실내체육관', 150, true, true, false, '275,000원(3시간) / 추가 1시간당 77,000원');
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (10, '일반강의실', 50, true, true, false, '6개실, 20~50명, 110,000원(3시간) / 추가 1시간당 22,000원');
+
+-- 11. 중진공 충청연수원
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (11, '대강당', 100, true, true, false, NULL);
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (11, '대강의실', 40, true, true, false, '216㎡, 기본 사용료 100,000원(3시간/추가 1시간당 20,000원, VAT 별도)');
+
+-- 12. 중진공 부산경남연수원
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (12, '대강당', 150, true, true, false, '3시간 300,000원 / 추가 1시간당 60,000원');
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (12, '중규모 강의실', 50, true, true, false, '3시간 100,000원 / 추가 1시간당 20,000원');
+
+-- 13. 동해 무릉건강숲
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (13, '대강당', 100, true, true, false, '10만원(4시간) / 20만원(8시간)');
+INSERT INTO venue_rooms (venue_id, name, capacity, has_projector, has_microphone, has_whiteboard, notes)
+VALUES (13, '소그룹실', 50, true, true, false, '6만원(4시간) / 12만원(8시간)');

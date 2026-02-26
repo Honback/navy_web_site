@@ -68,9 +68,11 @@ public class TrainingRequestService {
         request.setSecondVenue(secondVenue);
         request.setTrainingType(dto.trainingType());
         request.setFleet(dto.fleet());
+        request.setShip(dto.ship());
         request.setRequestDate(dto.requestDate());
         request.setRequestEndDate(dto.requestEndDate());
         request.setStartTime(dto.startTime());
+        request.setParticipantCount(dto.participantCount());
         request.setNotes(dto.notes());
 
         TrainingRequest saved = requestRepository.save(request);
@@ -118,23 +120,36 @@ public class TrainingRequestService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<TrainingRequestResponseDto> getRequestsByFleet(String fleet) {
+        return requestRepository.findByFleetOrderByCreatedAtDesc(fleet)
+                .stream()
+                .map(this::toResponseDto)
+                .toList();
+    }
+
     @Transactional
-    public TrainingRequestResponseDto updateStatus(Long requestId, RequestStatus status) {
+    public TrainingRequestResponseDto updateStatus(Long requestId, RequestStatus status, String reason) {
         TrainingRequest request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new IllegalArgumentException("Request not found: " + requestId));
 
         RequestStatus oldStatus = request.getStatus();
         request.setStatus(status);
+        if (status == RequestStatus.REJECTED || status == RequestStatus.CANCELLED) {
+            request.setRejectionReason(reason);
+        } else {
+            request.setRejectionReason(null);
+        }
         TrainingRequest saved = requestRepository.save(request);
 
-        // Auto-create instructor schedules on APPROVE
-        if (status == RequestStatus.APPROVED && oldStatus != RequestStatus.APPROVED) {
+        // Auto-create instructor schedules on CONFIRMED
+        if (status == RequestStatus.CONFIRMED && oldStatus != RequestStatus.CONFIRMED) {
             createSchedulesForRequest(saved);
         }
 
-        // Remove schedules if cancelled/rejected after approval
+        // Remove schedules if cancelled/rejected after confirmation
         if ((status == RequestStatus.CANCELLED || status == RequestStatus.REJECTED)
-                && oldStatus == RequestStatus.APPROVED) {
+                && oldStatus == RequestStatus.CONFIRMED) {
             scheduleRepository.deleteByRequestId(requestId);
         }
 
@@ -146,8 +161,8 @@ public class TrainingRequestService {
         // Get booked instructor IDs from instructor_schedules table
         List<Long> bookedInstructorIds = scheduleRepository.findBookedInstructorIdsByDate(date);
 
-        // Get booked venue IDs from approved requests
-        List<TrainingRequest> approved = requestRepository.findByRequestDateAndStatus(date, RequestStatus.APPROVED);
+        // Get booked venue IDs from confirmed requests
+        List<TrainingRequest> approved = requestRepository.findByRequestDateAndStatus(date, RequestStatus.CONFIRMED);
         List<Long> bookedVenueIds = approved.stream()
                 .map(r -> r.getVenue().getId())
                 .distinct()
@@ -218,12 +233,17 @@ public class TrainingRequestService {
                 sv != null ? sv.getRoomNumber() : null,
                 r.getTrainingType(),
                 r.getFleet(),
+                r.getShip(),
+                r.getUser().getFleet(),
+                r.getUser().getShip(),
                 r.getRequestDate(),
                 r.getRequestEndDate(),
                 r.getStartTime(),
+                r.getParticipantCount(),
                 r.getStatus(),
                 r.getNotes(),
                 r.getPlan(),
+                r.getRejectionReason(),
                 r.getCreatedAt()
         );
     }

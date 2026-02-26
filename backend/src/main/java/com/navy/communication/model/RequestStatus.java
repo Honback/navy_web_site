@@ -2,7 +2,9 @@ package com.navy.communication.model;
 
 public enum RequestStatus {
     PENDING,
-    APPROVED,
+    VENUE_CHECK,
+    INSTRUCTOR_CHECK,
+    CONFIRMED,
     REJECTED,
     CANCELLED
 }

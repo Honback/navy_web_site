@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { api } from '../services/api'
 import type { User } from '../types'
 
+const FLEETS = ['해군본부', '1함대', '2함대', '3함대', '작전사', '진기사', '교육사']
+
 interface LoginScreenProps {
   onLogin: (user: User) => void
 }
@@ -10,8 +12,9 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
-  const [affiliation, setAffiliation] = useState('')
   const [phone, setPhone] = useState('')
+  const [fleet, setFleet] = useState('')
+  const [ship, setShip] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -49,19 +52,26 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
     setError('')
     setSuccess('')
 
-    if (!email.trim() || !name.trim() || !affiliation.trim() || !phone.trim()) {
-      setError('모든 항목을 입력해주세요.')
+    if (!email.trim() || !name.trim() || !phone.trim() || !fleet) {
+      setError('이름, 이메일, 전화번호, 소속 함대는 필수입니다.')
       return
     }
 
     setLoading(true)
     try {
-      await api.register({ email: email.trim(), name: name.trim(), affiliation: affiliation.trim(), phone: phone.trim() })
+      await api.register({
+        email: email.trim(),
+        name: name.trim(),
+        phone: phone.trim(),
+        fleet,
+        ship: ship.trim() || undefined,
+      })
       setSuccess('계정 등록 요청이 완료되었습니다. 관리자 승인 후 로그인 가능합니다.')
       setEmail('')
       setName('')
-      setAffiliation('')
       setPhone('')
+      setFleet('')
+      setShip('')
     } catch (err) {
       const msg = err instanceof Error ? err.message : ''
       if (msg.includes('이미 등록')) {
@@ -80,8 +90,9 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
     setSuccess('')
     setEmail('')
     setName('')
-    setAffiliation('')
     setPhone('')
+    setFleet('')
+    setShip('')
   }
 
   return (
@@ -143,15 +154,6 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="reg-affiliation">소속</label>
-              <input
-                id="reg-affiliation"
-                value={affiliation}
-                onChange={(e) => setAffiliation(e.target.value)}
-                placeholder="소속을 입력하세요"
-              />
-            </div>
-            <div className="form-group">
               <label htmlFor="reg-phone">전화번호</label>
               <input
                 type="tel"
@@ -161,6 +163,30 @@ export default function LoginScreen({ onLogin }: LoginScreenProps) {
                 placeholder="전화번호를 입력하세요"
               />
             </div>
+            <div className="form-group">
+              <label htmlFor="reg-fleet">소속 함대 *</label>
+              <select
+                id="reg-fleet"
+                value={fleet}
+                onChange={(e) => { setFleet(e.target.value); setShip('') }}
+              >
+                <option value="">-- 소속 함대 선택 --</option>
+                {FLEETS.map(f => (
+                  <option key={f} value={f}>{f}</option>
+                ))}
+              </select>
+            </div>
+            {fleet && (
+              <div className="form-group">
+                <label htmlFor="reg-ship">소속 함정</label>
+                <input
+                  id="reg-ship"
+                  value={ship}
+                  onChange={(e) => setShip(e.target.value)}
+                  placeholder="함정명을 입력하세요 (본부 소속은 비워두세요)"
+                />
+              </div>
+            )}
             <button type="submit" className="submit-btn" disabled={loading}>
               {loading ? '요청 중...' : '계정 등록 요청'}
             </button>

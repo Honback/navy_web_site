@@ -42,6 +42,9 @@ public class TrainingRequest {
     @Column(nullable = false, length = 20)
     private String fleet;
 
+    @Column(length = 50)
+    private String ship;
+
     @Column(name = "request_date", nullable = false)
     private LocalDate requestDate;
 
@@ -55,11 +58,17 @@ public class TrainingRequest {
     @Column(nullable = false, length = 20)
     private RequestStatus status = RequestStatus.PENDING;
 
+    @Column(name = "participant_count")
+    private Integer participantCount;
+
     @Column(columnDefinition = "TEXT")
     private String notes;
 
     @Column(columnDefinition = "TEXT")
     private String plan;
+
+    @Column(name = "rejection_reason", columnDefinition = "TEXT")
+    private String rejectionReason;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -107,6 +116,9 @@ public class TrainingRequest {
     public String getFleet() { return fleet; }
     public void setFleet(String fleet) { this.fleet = fleet; }
 
+    public String getShip() { return ship; }
+    public void setShip(String ship) { this.ship = ship; }
+
     public LocalDate getRequestDate() { return requestDate; }
     public void setRequestDate(LocalDate requestDate) { this.requestDate = requestDate; }
 
@@ -119,11 +131,17 @@ public class TrainingRequest {
     public RequestStatus getStatus() { return status; }
     public void setStatus(RequestStatus status) { this.status = status; }
 
+    public Integer getParticipantCount() { return participantCount; }
+    public void setParticipantCount(Integer participantCount) { this.participantCount = participantCount; }
+
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
 
     public String getPlan() { return plan; }
     public void setPlan(String plan) { this.plan = plan; }
+
+    public String getRejectionReason() { return rejectionReason; }
+    public void setRejectionReason(String rejectionReason) { this.rejectionReason = rejectionReason; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

@@ -11,4 +11,5 @@ public interface TrainingRequestRepository extends JpaRepository<TrainingRequest
     List<TrainingRequest> findAllByOrderByCreatedAtDesc();
     List<TrainingRequest> findByUserIdOrderByCreatedAtDesc(Long userId);
     List<TrainingRequest> findByRequestDateAndStatus(LocalDate requestDate, RequestStatus status);
+    List<TrainingRequest> findByFleetOrderByCreatedAtDesc(String fleet);
 }

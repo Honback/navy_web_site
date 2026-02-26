@@ -26,11 +26,16 @@ public record TrainingRequestResponseDto(
     String secondVenueRoomNumber,
     String trainingType,
     String fleet,
+    String ship,
+    String userFleet,
+    String userShip,
     LocalDate requestDate,
     LocalDate requestEndDate,
     String startTime,
+    Integer participantCount,
     RequestStatus status,
     String notes,
     String plan,
+    String rejectionReason,
     LocalDateTime createdAt
 ) {}

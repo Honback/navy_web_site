@@ -75,6 +75,9 @@ public class Instructor {
     @Column(columnDefinition = "TEXT")
     private String weaknesses;
 
+    @Column(name = "photo_url", length = 500)
+    private String photoUrl;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -145,6 +148,9 @@ public class Instructor {
 
     public String getWeaknesses() { return weaknesses; }
     public void setWeaknesses(String weaknesses) { this.weaknesses = weaknesses; }
+
+    public String getPhotoUrl() { return photoUrl; }
+    public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
